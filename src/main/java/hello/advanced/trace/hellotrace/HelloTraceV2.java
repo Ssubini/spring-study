@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component // 싱글턴으로 등록해서 쓸 목적?? 이게 무슨말이징??
-public class HelloTraceV1 {
+public class HelloTraceV2 {
     private static final String START_PREFIX = "-->";
     private static final String COMPLETE_PREFIX = "<--";
     private static final String EX_PREFIX = "<X-";
 
 
-    // 로그 시작할 때 호출
+    // 로그 시작할 때 호출 -> 처음에는 얘를 호출
     public TraceStatus begin(String message){
         TraceId traceId = new TraceId();
         Long startTimeMs = System.currentTimeMillis();
@@ -23,6 +23,16 @@ public class HelloTraceV1 {
         log.info("[{}] {}{}", traceId.getId(), addSpace(START_PREFIX, traceId.getLevel()), message);
 
         return new TraceStatus(traceId, startTimeMs, message);
+    }
+
+    // V2에서 추가 -> 두 번째 부터는 얘를 호출
+    public TraceStatus beginSync(TraceId beforeTraceId, String message){
+        TraceId nextId = beforeTraceId.createNextId();
+        Long startTimeMs = System.currentTimeMillis();
+
+        log.info("[{}] {}{}", nextId.getId(), addSpace(START_PREFIX, nextId.getLevel()), message);
+
+        return new TraceStatus(nextId, startTimeMs, message);
     }
 
     // 로그 종료할 때 호출
